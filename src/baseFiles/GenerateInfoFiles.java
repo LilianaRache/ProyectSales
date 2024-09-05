@@ -1,5 +1,6 @@
 package baseFiles;
 
+import baseFiles.enums.DocumentType;
 import baseFiles.enums.LastNamePerson;
 import baseFiles.enums.NamePerson;
 
@@ -23,7 +24,9 @@ public class GenerateInfoFiles {
         String fileName = DIRECTORY_PATH +"/salesman_" + name + "_" + id + ".txt";
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
-            writer.write("ID;" + id + "\n");
+            String documentType = DocumentType.values()[random.nextInt(DocumentType.values().length)].getCode();
+            writer.write(documentType + ";" + id + "\n");
+
             for (int i = 0; i < randomSalesCount; i++) {
                 int productId = random.nextInt(1000);
                 int quantitySold = random.nextInt(100);
@@ -39,11 +42,13 @@ public class GenerateInfoFiles {
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
             for (int i = 0; i < salesmanCount; i++) {
-                long id = Math.abs(random.nextLong()); // Asegúro que el ID sea positivo
+                String documentType = DocumentType.values()[random.nextInt(DocumentType.values().length)].getCode();
+                // Generación del ID con exactamente 10 dígitos
+                String id = String.format("%010d", random.nextInt(1_000_000_000) + 1_000_000_000);
                 String firstName = NamePerson.values()[random.nextInt(NamePerson.values().length)].name();
                 String lastName = LastNamePerson.values()[random.nextInt(LastNamePerson.values().length)].name();
 
-                writer.write("ID;" + id + ";" + firstName + ";" + lastName + "\n");
+                writer.write( documentType + ";" + id + ";" + firstName + ";" + lastName + "\n");
             }
         }
     }
@@ -57,8 +62,8 @@ public class GenerateInfoFiles {
             for (int i = 0; i < productCount; i++) {
                 int id = random.nextInt(1000);
                 String name = "Product" + i;
-                double price = random.nextDouble() * 100;
-                writer.write("ID;" + id + ";" + name + ";" + price + "\n");
+                int price  = (int) (random.nextDouble() * 100000);
+                writer.write( id + ";" + name + ";" + " $" + " "+ price + "\n");
             }
         }
     }
