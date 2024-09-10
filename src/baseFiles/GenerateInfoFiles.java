@@ -39,7 +39,7 @@ public class GenerateInfoFiles {
      */
     public void createSalesMenFile(int randomSalesCount, String name, long id) throws IOException {
         Random random = new Random();
-        String fileName = DIRECTORY_PATH +"/salesman_" + name + "_" + id + ".txt";
+        String fileName = DIRECTORY_PATH +"/salesBySeller_" + name + "_" + id + ".txt";
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
             String documentType = DocumentType.values()[random.nextInt(DocumentType.values().length)].getCode();
