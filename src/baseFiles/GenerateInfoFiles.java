@@ -46,7 +46,7 @@ public class GenerateInfoFiles {
             writer.write(documentType + ";" + id + "\n");
 
             for (int i = 0; i < randomSalesCount; i++) {
-                int productId = random.nextInt(1000);
+                int productId = random.nextInt(10);
                 int quantitySold = random.nextInt(100);
                 writer.write(productId + ";" + quantitySold + "\n");
             }
@@ -92,7 +92,7 @@ public class GenerateInfoFiles {
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
             for (int i = 0; i < productCount; i++) {
-                int id = random.nextInt(1000);
+                int id = random.nextInt(10);
                 String name = "Product" + i;
                 int price  = (int) (random.nextDouble() * 100000);
                 writer.write( id + ";" + name + ";" + " $" + " "+ price + "\n");

@@ -13,7 +13,7 @@ public class Main {
         GenerateReports reports = new GenerateReports();
 
         try {
-            infoFiles.createSalesMenFile(10, "Martha", 123456789L);
+            infoFiles.createSalesMenFile(10, "LUCIA", 1838148448);
             infoFiles.createSalesManInfoFile(5);
             infoFiles.createProductsFile(20);
 

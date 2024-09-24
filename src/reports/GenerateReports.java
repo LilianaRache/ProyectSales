@@ -45,19 +45,6 @@ public class GenerateReports {
         } catch (Exception e) {
             throw new RuntimeException("Error al generar reportes: ", e);
         }
-        
-
-
-
-        /*try (Stream<Path> paths = Files.walk(Paths.get(directoryPath))) { //recorre todos los archivos dentro del directorio especificado.
-            paths.filter(Files::isRegularFile).forEach(path -> { // filter(Files::isRegularFile) asegura que solo se procesen archivos regulares (no directorios).
-                futures.add(executor.submit(() -> {
-                    processFile(path);
-                    return null;
-                }));
-            });
-        }*/
-
 
     }
 
