@@ -28,32 +28,6 @@ public class GenerateInfoFiles {
     }
 
     /**
-     * Genera un archivo con información aleatoria de ventas de un vendedor.
-     * El archivo contendrá un encabezado con el tipo de documento y el ID del vendedor,
-     * seguido de varias líneas que representan ventas con un ID de producto y la cantidad vendida.
-     *
-     * @param randomSalesCount número de ventas aleatorias a generar para el vendedor.
-     * @param name nombre del vendedor. Se utiliza para nombrar el archivo.
-     * @param id número de identificación del vendedor. Se utiliza para nombrar el archivo y dentro del contenido.
-     * @throws IOException si ocurre un error al escribir el archivo, como problemas de acceso a la ruta.
-     */
-    public void createSalesMenFile(int randomSalesCount, String name, long id) throws IOException {
-        Random random = new Random();
-        String fileName = DIRECTORY_PATH +"/salesBySeller_" + name + "_" + id + ".txt";
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
-            String documentType = DocumentType.values()[random.nextInt(DocumentType.values().length)].getCode();
-            writer.write(documentType + ";" + id + "\n");
-
-            for (int i = 0; i < randomSalesCount; i++) {
-                int productId = random.nextInt(10);
-                int quantitySold = random.nextInt(100);
-                writer.write(productId + ";" + quantitySold + "\n");
-            }
-        }
-    }
-
-    /**
      * Genera un archivo con información de varios vendedores, incluyendo ID, nombres y apellidos.
      * Cada línea del archivo contendrá el tipo de documento, ID, nombre y apellido de un vendedor.
      *
@@ -99,5 +73,34 @@ public class GenerateInfoFiles {
             }
         }
     }
+
+    /**
+     * Genera un archivo con información aleatoria de ventas de un vendedor.
+     * El archivo contendrá un encabezado con el tipo de documento y el ID del vendedor,
+     * seguido de varias líneas que representan ventas con un ID de producto y la cantidad vendida.
+     *
+     * @param randomSalesCount número de ventas aleatorias a generar para el vendedor.
+     * @param name nombre del vendedor. Se utiliza para nombrar el archivo.
+     * @param id número de identificación del vendedor. Se utiliza para nombrar el archivo y dentro del contenido.
+     * @throws IOException si ocurre un error al escribir el archivo, como problemas de acceso a la ruta.
+     */
+    public void createSalesMenFile(int randomSalesCount, String name, long id) throws IOException {
+        Random random = new Random();
+        String fileName = DIRECTORY_PATH +"/salesBySeller_" + name + "_" + id + ".txt";
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+
+            String documentType = DocumentType.values()[random.nextInt(DocumentType.values().length)].getCode();
+            writer.write(documentType + ";" + id + "\n");
+
+            for (int i = 0; i < randomSalesCount; i++) {
+                int productId = random.nextInt(10);
+                int quantitySold = random.nextInt(100);
+                writer.write(productId + ";" + quantitySold + "\n");
+            }
+        }
+    }
+
+
 
 }

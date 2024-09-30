@@ -12,21 +12,28 @@ public class GenerateReports {
     private final Map<String, Integer> productMap = new HashMap<>();
     private final Map<String, String> vendedorMap = new HashMap<>();
 
+
     public void generateReports(String directoryPath) throws IOException, InterruptedException, ExecutionException {
+        final Path[] fileSalesBySeller = new Path[1];
         ExecutorService executor = Executors.newFixedThreadPool(4);
         List<Future<Void>> futures = new ArrayList<>();
-
         File directory = new File(directoryPath);
+
         try {
             File[] files = directory.listFiles();
-
             if (files != null) {
                 for (File file : files) {
                     if (file.isFile()) { // Verifica que sea un archivo regular
                         futures.add(executor.submit(() -> { //Aquí, se utiliza un ExecutorService para ejecutar el método
                             // processFile(path) en un hilo separado para cada archivo. submit envía una tarea para su ejecución
                             // en segundo plano, y Future<Void> se usa para esperar a que la tarea termine.
-                            processFile(file.toPath());
+                            System.out.println("Procesando archivo " + file.getName() + " en el hilo: " + Thread.currentThread().getName());
+                            String fileName = file.toPath().getFileName().toString();
+                            if (!fileName.contains("salesBy")) {
+                                processFile(file.toPath());
+                            } else {
+                                fileSalesBySeller[0] = file.toPath();
+                            }
                             return null;
                         }));
                     }
@@ -39,25 +46,41 @@ public class GenerateReports {
             }
 
             executor.shutdown();
+            processSaleBySellerFile(fileSalesBySeller[0]);
             generateSalesmanReport();
             generateProductReport();
 
         } catch (Exception e) {
             throw new RuntimeException("Error al generar reportes: ", e);
         }
+    }
+
+    private void processFile(Path path) {
+        try{
+            String fileName = path.getFileName().toString();
+            List<String> lines = Files.readAllLines(path);
+
+            if (fileName.contains("products")) {
+                processProductFile(lines);
+                System.out.println("Archivo de productos procesado.");
+
+            } else if (fileName.contains("salesmen")) {
+                processSalesmanInfoFile(lines);
+                System.out.println("Archivo de vendedores procesado.");
+            }
+        } catch (IOException ex){
+            throw new RuntimeException("Error al procesar archivos de productos o vendedaores:" , ex);
+        }
 
     }
 
-    private void processFile(Path path) throws IOException {
-        String fileName = path.getFileName().toString();
-        List<String> lines = Files.readAllLines(path);
-
-        if (fileName.contains("productos")) {
-            processProductFile(lines);
-        } else if (fileName.contains("ventas")) {
+    private void processSaleBySellerFile(Path path) {
+        try{
+            List<String> lines = Files.readAllLines(path);
             processSalesFile(lines);
-        } else if (fileName.contains("vendedores")) {
-            processSalesmanInfoFile(lines);
+            System.out.println("Archivo de ventas procesado.");
+        }  catch (IOException ex){
+            throw new RuntimeException("Error al procesar archivo de ventas por vendedor:" , ex);
         }
     }
 
