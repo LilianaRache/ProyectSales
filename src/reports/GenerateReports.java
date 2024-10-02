@@ -127,7 +127,7 @@ public class GenerateReports {
 
 
     private void generateSalesmanReport() throws IOException {
-
+        //TODO: Verificar por que el nombre vendedor llega nulo.
         try (BufferedWriter writer = Files.newBufferedWriter(Paths.get("src/reports/generatedReports/reporteVendedores.csv"))) {
 
             List<Map.Entry<String, Integer>> salesList = new ArrayList<>(salesMap.entrySet());

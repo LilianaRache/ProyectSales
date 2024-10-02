@@ -3,6 +3,7 @@ package baseFiles;
 import baseFiles.enums.DocumentType;
 import baseFiles.enums.LastNamePerson;
 import baseFiles.enums.NamePerson;
+import entities.Seller;
 
 import java.io.*;
 import java.util.*;
@@ -15,6 +16,7 @@ import java.util.*;
 public class GenerateInfoFiles {
 
     private static final String DIRECTORY_PATH = "src/baseFiles/generatedFiles";
+    Seller seller = new Seller();
 
     /**
      * Constructor de la clase GenerateInfoFiles.
@@ -36,7 +38,7 @@ public class GenerateInfoFiles {
      * @throws IOException si ocurre un error al escribir el archivo, como problemas de acceso a la ruta.
      */
 
-    public void createSalesManInfoFile(int salesmanCount) throws IOException {
+    public boolean createSalesManInfoFile(int salesmanCount) throws IOException{
         Random random = new Random();
         String fileName = DIRECTORY_PATH + "/salesmen_info.txt";
 
@@ -50,6 +52,7 @@ public class GenerateInfoFiles {
 
                 writer.write( documentType + ";" + id + ";" + firstName + ";" + lastName + "\n");
             }
+            return true;
         }
     }
 
@@ -60,18 +63,19 @@ public class GenerateInfoFiles {
      * @throws IOException si ocurre un error al escribir el archivo, como problemas de acceso a la ruta.
      */
 
-    public void createProductsFile(int productCount) throws IOException {
+    public boolean createProductsFile(int productCount) throws IOException {
         Random random = new Random();
         String fileName = DIRECTORY_PATH + "/products_info.txt";
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
             for (int i = 0; i < productCount; i++) {
-                int id = random.nextInt(10);
+                int id = i;//random.nextInt(10);
                 String name = "Product" + i;
                 int price  = (int) (random.nextDouble() * 100000);
                 writer.write( id + ";" + name + ";" + " $" + " "+ price + "\n");
             }
         }
+        return true;
     }
 
     /**
@@ -84,21 +88,43 @@ public class GenerateInfoFiles {
      * @param id número de identificación del vendedor. Se utiliza para nombrar el archivo y dentro del contenido.
      * @throws IOException si ocurre un error al escribir el archivo, como problemas de acceso a la ruta.
      */
-    public void createSalesMenFile(int randomSalesCount, String name, long id) throws IOException {
+    public boolean createSalesxMenFile(int randomSalesCount, String name, long id) throws IOException {
+
+        if (!getInfoSeller()){
+            return false;
+        }
         Random random = new Random();
-        String fileName = DIRECTORY_PATH +"/salesBySeller_" + name + "_" + id + ".txt";
+        String fileName = DIRECTORY_PATH +"/salesBySeller_" + seller.getName() + "_" + seller.getDni() + ".txt";
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
 
-            String documentType = DocumentType.values()[random.nextInt(DocumentType.values().length)].getCode();
-            writer.write(documentType + ";" + id + "\n");
+            writer.write(seller.getDocumentType() + ";" + seller.getDni() + "\n");
 
             for (int i = 0; i < randomSalesCount; i++) {
                 int productId = random.nextInt(10);
                 int quantitySold = random.nextInt(100);
                 writer.write(productId + ";" + quantitySold + "\n");
             }
+            return true;
         }
+    }
+
+    private boolean getInfoSeller() throws IOException {
+        File directory = new File(DIRECTORY_PATH);
+        File[] files = directory.listFiles();
+        for (File file: files){
+            if (file.getName().equals("salesmen_info.txt")) {
+                try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+                    String[] infoSeller = br.readLine().split(";");
+                    seller.setDocumentType(infoSeller[0]);
+                    seller.setDni(Integer.parseInt(infoSeller[1]));
+                    seller.setName(infoSeller[2]);
+                    seller.setLastName(infoSeller[3]);
+                    System.out.println("Seller: " + seller);
+                }
+            }
+        }
+       return true;
     }
 
 

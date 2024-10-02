@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         System.out.println("Inicia creacion de archivos");
 
@@ -13,18 +13,22 @@ public class Main {
         GenerateReports reports = new GenerateReports();
 
         try {
-            infoFiles.createSalesManInfoFile(5);
-            infoFiles.createProductsFile(20);
-            infoFiles.createSalesMenFile(10, "LUCIA", 188148448);
 
-            reports.generateReports("src/baseFiles/generatedFiles");
+            boolean processFileSalesMan =  infoFiles.createSalesManInfoFile(5);
+            boolean processFileProducts = infoFiles.createProductsFile(20);
+            boolean processFileSalesMen = infoFiles.createSalesxMenFile(10, "LUCIA", 188148448);
 
-            System.out.println("Ejecucion exitosa!");
+            if (processFileSalesMan && processFileProducts && processFileSalesMen) {
+                reports.generateReports("src/baseFiles/generatedFiles");
+                System.out.println("Ejecucion exitosa!");
+            } else {
+                System.out.println("Algunas operaciones fallaron. No se generarán reportes.");
+            }
 
         } catch (IOException e) {
-            System.out.println("Ocurrio un error en el proceso: " + e.getMessage());
+            throw new IOException("Ocurrio un error en el proceso: ", e);
         } catch (ExecutionException | InterruptedException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Ocurrio un error en el proceso: ", e);
         }
     }
 }
