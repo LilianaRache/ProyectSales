@@ -42,6 +42,7 @@ public class GenerateInfoFiles {
         Random random = new Random();
         String fileName = DIRECTORY_PATH + "/salesmen_info.txt";
 
+
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
             for (int i = 0; i < salesmanCount; i++) {
                 String documentType = DocumentType.values()[random.nextInt(DocumentType.values().length)].getCode();

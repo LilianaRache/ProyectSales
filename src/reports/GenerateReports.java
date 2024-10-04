@@ -112,35 +112,38 @@ public class GenerateReports {
     private void processSalesFile(List<String> lines) { // Implementa el procesamiento del archivo de ventas por vendedor
 
         String documentInfo = lines.get(0); // TipoDocumento;NúmeroDocumento
-        String seller = "";
+        String seller = vendedorMap.get(documentInfo);
         int totalAmount = 0;
+        if (seller != null){
+            for (int i = 1; i < lines.size(); i++) {
+                String line = lines.get(i);
+                String[] parts = line.split(";");
+                String idProducto = parts[0].trim();
+                int cantidadVendida = Integer.parseInt(parts[1].trim());
 
-        for (int i = 1; i < lines.size(); i++) {
-            String line = lines.get(i);
-            String[] parts = line.split(";");
-            String idProducto = parts[0].trim();
-            int cantidadVendida = Integer.parseInt(parts[1].trim());
+                totalAmount = totalAmount + productMap.get(idProducto) * cantidadVendida;
+                if (salesMap.isEmpty()) {
+                    System.out.println("la lista salesMap esta vacia");
+                    // Si la lista está vacía, agrega un nuevo HashMap
+                    salesMap.add(new HashMap<>());
+                }
 
-            seller = vendedorMap.get(documentInfo);
-            totalAmount = totalAmount + productMap.get(idProducto) * cantidadVendida;
-
-            if (salesMap.isEmpty()) {
-                System.out.println("la lista salesMap esta vacia");
-                // Si la lista está vacía, agrega un nuevo HashMap
-                salesMap.add(new HashMap<>());
             }
-
+            salesMap.get(0).merge(seller, totalAmount, Integer::sum);
+            //La función merge agrega el monto total de la venta actual (totalAmount) al total acumulado de ventas del vendedor.
+            // Si el vendedor ya existe, suma el valor; si no, lo inserta con el valor totalAmount
+            //Si el vendedor ya tiene un monto acumulado en salesMap, Integer::sum suma el nuevo totalAmount al monto existente.
         }
-        salesMap.get(0).merge(seller, totalAmount, Integer::sum);
-        //La función merge agrega el monto total de la venta actual (totalAmount) al total acumulado de ventas del vendedor.
-        // Si el vendedor ya existe, suma el valor; si no, lo inserta con el valor totalAmount
-        //Si el vendedor ya tiene un monto acumulado en salesMap, Integer::sum suma el nuevo totalAmount al monto existente.
+
     }
 
 
     private void generateSalesmanReport() throws IOException {
 
         try (BufferedWriter writer = Files.newBufferedWriter(Paths.get("src/reports/generatedReports/reporteVendedores.csv"))) {
+
+            writer.write("Vendedor; CantidadRecaudada");
+            writer.newLine();
 
             List<Map.Entry<String, Integer>> salesList = new ArrayList<>();
 
@@ -165,6 +168,9 @@ public class GenerateReports {
 
     private void generateProductReport() {
         try (BufferedWriter writer = Files.newBufferedWriter(Paths.get("src/reports/generatedReports/reporteProductos.csv"))) {
+
+            writer.write("Producto; CantidadVendida");
+            writer.newLine();
 
             List<Map.Entry<String, Integer>> productList = new ArrayList<>(productMap.entrySet());
 
