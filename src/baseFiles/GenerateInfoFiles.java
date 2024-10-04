@@ -84,47 +84,51 @@ public class GenerateInfoFiles {
      * seguido de varias líneas que representan ventas con un ID de producto y la cantidad vendida.
      *
      * @param randomSalesCount número de ventas aleatorias a generar para el vendedor.
-     * @param name nombre del vendedor. Se utiliza para nombrar el archivo.
-     * @param id número de identificación del vendedor. Se utiliza para nombrar el archivo y dentro del contenido.
      * @throws IOException si ocurre un error al escribir el archivo, como problemas de acceso a la ruta.
      */
-    public boolean createSalesxMenFile(int randomSalesCount, String name, long id) throws IOException {
 
-        if (!getInfoSeller()){
+    public boolean createSalesxMenFile(int randomSalesCount) throws IOException {
+        File infoFile = new File(DIRECTORY_PATH + "/salesmen_info.txt");
+
+        if (!infoFile.exists()) {
+            System.out.println("El archivo de información de vendedores no existe.");
             return false;
         }
-        Random random = new Random();
-        String fileName = DIRECTORY_PATH +"/salesBySeller_" + seller.getName() + "_" + seller.getDni() + ".txt";
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(infoFile))) {
+            String line;
 
-            writer.write(seller.getDocumentType() + ";" + seller.getDni() + "\n");
+            while ((line = br.readLine()) != null) {
 
-            for (int i = 0; i < randomSalesCount; i++) {
-                int productId = random.nextInt(10);
-                int quantitySold = random.nextInt(100);
-                writer.write(productId + ";" + quantitySold + "\n");
-            }
-            return true;
-        }
-    }
+                String[] infoSeller = line.split(";");
 
-    private boolean getInfoSeller() throws IOException {
-        File directory = new File(DIRECTORY_PATH);
-        File[] files = directory.listFiles();
-        for (File file: files){
-            if (file.getName().equals("salesmen_info.txt")) {
-                try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-                    String[] infoSeller = br.readLine().split(";");
-                    seller.setDocumentType(infoSeller[0]);
-                    seller.setDni(Integer.parseInt(infoSeller[1]));
-                    seller.setName(infoSeller[2]);
-                    seller.setLastName(infoSeller[3]);
-                    System.out.println("Seller: " + seller);
+                String documentType = infoSeller[0];
+                long dni = Long.parseLong(infoSeller[1]);
+                String name = infoSeller[2];
+                String lastName = infoSeller[3];
+
+                String fileName = DIRECTORY_PATH + "/salesBySeller_" + name + "_" + dni + ".txt";
+                Random random = new Random();
+
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+
+                    writer.write(documentType + ";" + dni + "\n");
+
+                    for (int i = 0; i < randomSalesCount; i++) {
+                        int productId = random.nextInt(10);
+                        int quantitySold = random.nextInt(100);
+                        writer.write(productId + ";" + quantitySold + "\n");
+                    }
+                } catch (IOException e) {
+                    System.out.println("Error al escribir el archivo para el vendedor: " + name + " " + lastName);
+                    return false;
                 }
             }
+        } catch (IOException e) {
+            System.out.println("Error al leer el archivo de vendedores.");
+            return false;
         }
-       return true;
+        return true;
     }
 
 

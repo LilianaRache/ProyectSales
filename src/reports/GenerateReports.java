@@ -8,13 +8,13 @@ import java.util.stream.*;
 
 public class GenerateReports {
 
-    private final Map<String, Integer> salesMap = new HashMap<>();
+    private final List<Map<String, Integer>> salesMap = new ArrayList<>();
     private final Map<String, Integer> productMap = new HashMap<>();
     private final Map<String, String> vendedorMap = new HashMap<>();
 
 
     public void generateReports(String directoryPath) throws IOException, InterruptedException, ExecutionException {
-        final Path[] fileSalesBySeller = new Path[1];
+        List<Path> fileSalesBySeller = new ArrayList<>();
         ExecutorService executor = Executors.newFixedThreadPool(4);
         List<Future<Void>> futures = new ArrayList<>();
         File directory = new File(directoryPath);
@@ -32,7 +32,7 @@ public class GenerateReports {
                             if (!fileName.contains("salesBy")) {
                                 processFile(file.toPath());
                             } else {
-                                fileSalesBySeller[0] = file.toPath();
+                                fileSalesBySeller.add(file.toPath());
                             }
                             return null;
                         }));
@@ -46,7 +46,7 @@ public class GenerateReports {
             }
 
             executor.shutdown();
-            processSaleBySellerFile(fileSalesBySeller[0]);
+            processSaleBySellerFile(fileSalesBySeller);
             generateSalesmanReport();
             generateProductReport();
 
@@ -74,11 +74,14 @@ public class GenerateReports {
 
     }
 
-    private void processSaleBySellerFile(Path path) {
+    private void processSaleBySellerFile(List<Path> fileSalesBySeller) {
         try{
-            List<String> lines = Files.readAllLines(path);
-            processSalesFile(lines);
-            System.out.println("Archivo de ventas procesado.");
+
+            for (Path path : fileSalesBySeller) {
+                List<String> lines = Files.readAllLines(path);
+                processSalesFile(lines);
+                System.out.println("Archivo de ventas procesado.");
+            }
         }  catch (IOException ex){
             throw new RuntimeException("Error al procesar archivo de ventas por vendedor:" , ex);
         }
@@ -109,28 +112,42 @@ public class GenerateReports {
     private void processSalesFile(List<String> lines) { // Implementa el procesamiento del archivo de ventas por vendedor
 
         String documentInfo = lines.get(0); // TipoDocumento;NúmeroDocumento
+        String seller = "";
+        int totalAmount = 0;
+
         for (int i = 1; i < lines.size(); i++) {
             String line = lines.get(i);
             String[] parts = line.split(";");
             String idProducto = parts[0].trim();
             int cantidadVendida = Integer.parseInt(parts[1].trim());
 
-            String vendedor = vendedorMap.get(documentInfo);
-            int totalAmount = productMap.get(idProducto) * cantidadVendida;
+            seller = vendedorMap.get(documentInfo);
+            totalAmount = totalAmount + productMap.get(idProducto) * cantidadVendida;
 
-            salesMap.merge(vendedor, totalAmount, Integer::sum);
-            //La función merge agrega el monto total de la venta actual (totalAmount) al total acumulado de ventas del vendedor.
-            //Si el vendedor ya tiene un monto acumulado en salesMap, Integer::sum suma el nuevo totalAmount al monto existente.
-            //Si no existe un monto previo (es la pri
+            if (salesMap.isEmpty()) {
+                System.out.println("la lista salesMap esta vacia");
+                // Si la lista está vacía, agrega un nuevo HashMap
+                salesMap.add(new HashMap<>());
+            }
+
         }
+        salesMap.get(0).merge(seller, totalAmount, Integer::sum);
+        //La función merge agrega el monto total de la venta actual (totalAmount) al total acumulado de ventas del vendedor.
+        // Si el vendedor ya existe, suma el valor; si no, lo inserta con el valor totalAmount
+        //Si el vendedor ya tiene un monto acumulado en salesMap, Integer::sum suma el nuevo totalAmount al monto existente.
     }
 
 
     private void generateSalesmanReport() throws IOException {
-        //TODO: Verificar por que el nombre vendedor llega nulo.
+
         try (BufferedWriter writer = Files.newBufferedWriter(Paths.get("src/reports/generatedReports/reporteVendedores.csv"))) {
 
-            List<Map.Entry<String, Integer>> salesList = new ArrayList<>(salesMap.entrySet());
+            List<Map.Entry<String, Integer>> salesList = new ArrayList<>();
+
+            // Iterar sobre cada mapa dentro de la lista y agregar todas sus entradas a salesList
+            for (Map<String, Integer> sales : salesMap) {
+                salesList.addAll(sales.entrySet());
+            }
 
             salesList.sort((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue()));
             //La expresión lambda está diseñada para que los vendedores con mayor valor vendido  aparezcan primero en la lista.
@@ -144,8 +161,6 @@ public class GenerateReports {
                 }
             }
         }
-
-
     }
 
     private void generateProductReport() {

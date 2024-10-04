@@ -16,7 +16,7 @@ public class Main {
 
             boolean processFileSalesMan =  infoFiles.createSalesManInfoFile(5);
             boolean processFileProducts = infoFiles.createProductsFile(20);
-            boolean processFileSalesMen = infoFiles.createSalesxMenFile(10, "LUCIA", 188148448);
+            boolean processFileSalesMen = infoFiles.createSalesxMenFile(10);
 
             if (processFileSalesMan && processFileProducts && processFileSalesMen) {
                 reports.generateReports("src/baseFiles/generatedFiles");
